@@ -48,9 +48,9 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
     await _config.set('worldchat_system_prompt_id', _worldchatSystemPromptId);
     await _config.set('solo_system_prompt_id', _soloSystemPromptId);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('聊天设置已保存')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('聊天设置已保存')));
     }
   }
 
@@ -86,44 +86,41 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
           _sectionTitle('聊天设置', Icons.chat_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              SwitchListTile(
-                title: const Text('启用深度思考'),
-                subtitle: const Text('开启后模型会展示推理过程'),
-                value: _enableThinking,
-                onChanged: (v) => setState(() => _enableThinking = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const Divider(height: 1),
-              SwitchListTile(
-                title: const Text('联网搜索'),
-                subtitle: const Text('开启后模型可自动联网搜索信息'),
-                value: _enableSearch,
-                onChanged: (v) => setState(() => _enableSearch = v),
-                contentPadding: EdgeInsets.zero,
-              ),
-              const SizedBox(height: 14),
-              _systemPromptDropdown(
-                '会话系统提示词',
-                _defaultSystemPromptId,
-                (v) => setState(() => _defaultSystemPromptId = v ?? ''),
-              ),
-              const SizedBox(height: 14),
-              _systemPromptDropdown(
-                '世界系统提示词',
-                _worldchatSystemPromptId,
-                (v) => setState(() => _worldchatSystemPromptId = v ?? ''),
-              ),
-              const SizedBox(height: 14),
-              _systemPromptDropdown(
-                '独幕系统提示词',
-                _soloSystemPromptId,
-                (v) => setState(() => _soloSystemPromptId = v ?? ''),
-              ),
-            ],
+          SwitchListTile(
+            title: const Text('启用深度思考'),
+            subtitle: const Text('开启后模型会展示推理过程'),
+            value: _enableThinking,
+            onChanged: (v) => setState(() => _enableThinking = v),
+            contentPadding: EdgeInsets.zero,
           ),
+          const Divider(height: 1),
+          SwitchListTile(
+            title: const Text('联网搜索'),
+            subtitle: const Text('开启后模型可自动联网搜索信息'),
+            value: _enableSearch,
+            onChanged: (v) => setState(() => _enableSearch = v),
+            contentPadding: EdgeInsets.zero,
+          ),
+          const SizedBox(height: 14),
+          _systemPromptDropdown(
+            '会话系统提示词',
+            _defaultSystemPromptId,
+            (v) => setState(() => _defaultSystemPromptId = v ?? ''),
+          ),
+          const SizedBox(height: 14),
+          _systemPromptDropdown(
+            '世界系统提示词',
+            _worldchatSystemPromptId,
+            (v) => setState(() => _worldchatSystemPromptId = v ?? ''),
+          ),
+          const SizedBox(height: 14),
+          _systemPromptDropdown(
+            '独幕系统提示词',
+            _soloSystemPromptId,
+            (v) => setState(() => _soloSystemPromptId = v ?? ''),
+          ),
+          const SizedBox(height: 32),
+          const Divider(height: 1),
         ],
       ),
     );
@@ -146,22 +143,6 @@ class _ChatSettingsPageState extends State<ChatSettingsPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _card({required List<Widget> children}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }

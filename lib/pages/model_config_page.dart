@@ -15,9 +15,9 @@ class _ModelEntry {
     required String name,
     required String baseUrl,
     required String apiKey,
-  })  : nameCtrl = TextEditingController(text: name),
-        urlCtrl = TextEditingController(text: baseUrl),
-        keyCtrl = TextEditingController(text: apiKey);
+  }) : nameCtrl = TextEditingController(text: name),
+       urlCtrl = TextEditingController(text: baseUrl),
+       keyCtrl = TextEditingController(text: apiKey);
 
   void dispose() {
     nameCtrl.dispose();
@@ -174,9 +174,9 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
     ]);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('模型配置已保存')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('模型配置已保存')));
     }
   }
 
@@ -212,58 +212,52 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
           _sectionTitle('傻瓜式无脑配置', Icons.vpn_key_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              TextField(
-                controller: _masterKeyCtrl,
-                decoration: const InputDecoration(
-                  labelText: '统一 API Key',
-                  hintText: '粘贴百炼 API Key，自动同步所有密钥',
-                  isDense: true,
-                ),
-                obscureText: true,
-              ),
-            ],
+          const SizedBox(height: 12),
+          TextField(
+            controller: _masterKeyCtrl,
+            decoration: const InputDecoration(
+              labelText: '统一 API Key',
+              hintText: '粘贴百炼 API Key，自动同步所有密钥',
+              isDense: true,
+            ),
+            obscureText: true,
           ),
           const SizedBox(height: 28),
 
           _sectionTitle('TTS 语音合成配置', Icons.record_voice_over_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              TextField(
-                controller: _ttsApiKeyCtrl,
-                decoration: const InputDecoration(labelText: 'API Key'),
-                obscureText: true,
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _ttsBaseUrlCtrl,
-                decoration: const InputDecoration(labelText: 'Base URL'),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _ttsModelCtrl,
-                decoration: const InputDecoration(labelText: '模型'),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _ttsVoiceCtrl,
-                decoration: const InputDecoration(labelText: '默认音色'),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _ttsLanguageCtrl,
-                decoration: const InputDecoration(labelText: '语言'),
-              ),
-            ],
+          const SizedBox(height: 12),
+          TextField(
+            controller: _ttsApiKeyCtrl,
+            decoration: const InputDecoration(labelText: 'API Key'),
+            obscureText: true,
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _ttsBaseUrlCtrl,
+            decoration: const InputDecoration(labelText: 'Base URL'),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _ttsModelCtrl,
+            decoration: const InputDecoration(labelText: '模型'),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _ttsVoiceCtrl,
+            decoration: const InputDecoration(labelText: '默认音色'),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _ttsLanguageCtrl,
+            decoration: const InputDecoration(labelText: '语言'),
           ),
           const SizedBox(height: 28),
 
           _sectionTitle('模型管理', Icons.storage_outlined),
-          const SizedBox(height: 10),
-          _card(children: [_buildModelSection()]),
+          const SizedBox(height: 12),
+          _buildModelSection(),
+          const SizedBox(height: 32),
+          const Divider(height: 1),
         ],
       ),
     );
@@ -367,22 +361,6 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _card({required List<Widget> children}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }

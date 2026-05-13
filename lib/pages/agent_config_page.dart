@@ -43,9 +43,9 @@ class _AgentConfigPageState extends State<AgentConfigPage> {
     await _config.set('agent_model_compression', _modelCompression);
     await _config.set('solo_memory_model', _modelMemory);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('智能体配置已保存')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('智能体配置已保存')));
     }
   }
 
@@ -81,33 +81,31 @@ class _AgentConfigPageState extends State<AgentConfigPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
           _sectionTitle('Agent 模型配置', Icons.smart_toy_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              _modelDropdown(
-                '对话模型',
-                _modelChat,
-                (v) => setState(() => _modelChat = v!),
-              ),
-              const SizedBox(height: 14),
-              _modelDropdown(
-                '压缩模型',
-                _modelCompression,
-                (v) => setState(() => _modelCompression = v!),
-              ),
-              const SizedBox(height: 14),
-              _modelDropdown(
-                '记忆提取模型',
-                _modelMemory,
-                (v) => setState(() => _modelMemory = v ?? ''),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '用于将多轮摘要提炼为结构化记忆，推荐使用便宜模型',
-                style: TextStyle(fontSize: 11, color: AppColors.subText),
-              ),
-            ],
+          const SizedBox(height: 12),
+          _modelDropdown(
+            '对话模型',
+            _modelChat,
+            (v) => setState(() => _modelChat = v!),
           ),
+          const SizedBox(height: 14),
+          _modelDropdown(
+            '压缩模型',
+            _modelCompression,
+            (v) => setState(() => _modelCompression = v!),
+          ),
+          const SizedBox(height: 14),
+          _modelDropdown(
+            '记忆提取模型',
+            _modelMemory,
+            (v) => setState(() => _modelMemory = v ?? ''),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '用于将多轮摘要提炼为结构化记忆，推荐使用便宜模型',
+            style: TextStyle(fontSize: 11, color: AppColors.subText),
+          ),
+          const SizedBox(height: 28),
+          const Divider(height: 1),
         ],
       ),
     );
@@ -130,22 +128,6 @@ class _AgentConfigPageState extends State<AgentConfigPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _card({required List<Widget> children}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }

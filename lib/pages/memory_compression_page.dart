@@ -32,12 +32,24 @@ class _MemoryCompressionPageState extends State<MemoryCompressionPage> {
   }
 
   Future<void> _save() async {
-    await _config.set('compression_recent_keep', _recentKeep.round().toString());
+    await _config.set(
+      'compression_recent_keep',
+      _recentKeep.round().toString(),
+    );
     await _config.set('compression_a_batch', _aBatch.round().toString());
     await _config.set('solo_memory_rounds', _memoryRounds.round().toString());
-    await _config.set('solo_memory_recent_keep', _memoryRecentKeep.round().toString());
-    await _config.set('solo_memory_max_context', _memoryMaxContext.round().toString());
-    await _config.set('solo_max_history_rounds', _maxHistoryRounds.round().toString());
+    await _config.set(
+      'solo_memory_recent_keep',
+      _memoryRecentKeep.round().toString(),
+    );
+    await _config.set(
+      'solo_memory_max_context',
+      _memoryMaxContext.round().toString(),
+    );
+    await _config.set(
+      'solo_max_history_rounds',
+      _maxHistoryRounds.round().toString(),
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
@@ -76,74 +88,68 @@ class _MemoryCompressionPageState extends State<MemoryCompressionPage> {
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
           _sectionTitle('压缩配置', Icons.compress_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              _slider(
-                label: '保留原始消息数',
-                value: _recentKeep,
-                min: 0,
-                max: 100,
-                divisions: 100,
-                onChanged: (v) => setState(() => _recentKeep = v),
-              ),
-              const SizedBox(height: 14),
-              _slider(
-                label: '每次压缩源消息数',
-                value: _aBatch,
-                min: 1,
-                max: 50,
-                divisions: 49,
-                onChanged: (v) => setState(() => _aBatch = v),
-              ),
-            ],
+          const SizedBox(height: 12),
+          _slider(
+            label: '保留原始消息数',
+            value: _recentKeep,
+            min: 0,
+            max: 100,
+            divisions: 100,
+            onChanged: (v) => setState(() => _recentKeep = v),
+          ),
+          const SizedBox(height: 14),
+          _slider(
+            label: '每次压缩源消息数',
+            value: _aBatch,
+            min: 1,
+            max: 50,
+            divisions: 49,
+            onChanged: (v) => setState(() => _aBatch = v),
           ),
           const SizedBox(height: 28),
           _sectionTitle('Solo 记忆配置', Icons.memory_outlined),
-          const SizedBox(height: 10),
-          _card(
-            children: [
-              _slider(
-                label: '记忆提取轮次',
-                value: _memoryRounds,
-                min: 2,
-                max: 20,
-                divisions: 18,
-                onChanged: (v) => setState(() => _memoryRounds = v),
-                hint: '每累计足够的压缩摘要后触发一次记忆提取，值越小提取越频繁。',
-              ),
-              const SizedBox(height: 14),
-              _slider(
-                label: '记忆保留最近摘要数',
-                value: _memoryRecentKeep,
-                min: 0,
-                max: 20,
-                divisions: 20,
-                onChanged: (v) => setState(() => _memoryRecentKeep = v),
-                hint: '最新的 N 条摘要不会被记忆消费，仍作为活跃摘要参与上下文。',
-              ),
-              const SizedBox(height: 14),
-              _slider(
-                label: '上下文最大 memory_ref 数',
-                value: _memoryMaxContext,
-                min: 0,
-                max: 50,
-                divisions: 50,
-                onChanged: (v) => setState(() => _memoryMaxContext = v),
-                hint: '超过上限后，最老的 memory_ref 会从活跃上下文中移除。',
-              ),
-              const SizedBox(height: 14),
-              _slider(
-                label: '远古记忆轮次上限',
-                value: _maxHistoryRounds,
-                min: 0,
-                max: 200,
-                divisions: 200,
-                onChanged: (v) => setState(() => _maxHistoryRounds = v),
-                hint: '被挤出活跃上下文的记忆会按这个上限折算为"远古记忆"补充到系统提示词。',
-              ),
-            ],
+          const SizedBox(height: 12),
+          _slider(
+            label: '记忆提取轮次',
+            value: _memoryRounds,
+            min: 2,
+            max: 20,
+            divisions: 18,
+            onChanged: (v) => setState(() => _memoryRounds = v),
+            hint: '每累计足够的压缩摘要后触发一次记忆提取，值越小提取越频繁。',
           ),
+          const SizedBox(height: 14),
+          _slider(
+            label: '记忆保留最近摘要数',
+            value: _memoryRecentKeep,
+            min: 0,
+            max: 20,
+            divisions: 20,
+            onChanged: (v) => setState(() => _memoryRecentKeep = v),
+            hint: '最新的 N 条摘要不会被记忆消费，仍作为活跃摘要参与上下文。',
+          ),
+          const SizedBox(height: 14),
+          _slider(
+            label: '上下文最大 memory_ref 数',
+            value: _memoryMaxContext,
+            min: 0,
+            max: 50,
+            divisions: 50,
+            onChanged: (v) => setState(() => _memoryMaxContext = v),
+            hint: '超过上限后，最老的 memory_ref 会从活跃上下文中移除。',
+          ),
+          const SizedBox(height: 14),
+          _slider(
+            label: '远古记忆轮次上限',
+            value: _maxHistoryRounds,
+            min: 0,
+            max: 200,
+            divisions: 200,
+            onChanged: (v) => setState(() => _maxHistoryRounds = v),
+            hint: '被挤出活跃上下文的记忆会按这个上限折算为"远古记忆"补充到系统提示词。',
+          ),
+          const SizedBox(height: 32),
+          const Divider(height: 1),
         ],
       ),
     );
@@ -188,10 +194,7 @@ class _MemoryCompressionPageState extends State<MemoryCompressionPage> {
           onChanged: onChanged,
         ),
         if (hint != null) ...[
-          Text(
-            hint,
-            style: TextStyle(fontSize: 11, color: AppColors.subText),
-          ),
+          Text(hint, style: TextStyle(fontSize: 11, color: AppColors.subText)),
         ],
       ],
     );
@@ -214,22 +217,6 @@ class _MemoryCompressionPageState extends State<MemoryCompressionPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _card({required List<Widget> children}) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children,
       ),
     );
   }
