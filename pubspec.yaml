@@ -1,0 +1,66 @@
+name: zfbai
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  path_provider: ^2.1.2
+  image_picker: ^1.0.7
+  audioplayers: ^6.0.0
+  uuid: ^4.5.1
+  flutter_phoenix: ^1.0.0
+  share_plus: ^10.1.4
+  flutter_markdown: ^0.7.4
+  markdown: ^7.3.0
+  flutter_colorpicker: ^1.1.0
+  video_player: ^2.9.1
+  file_picker: ^8.1.7
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  sqflite_common_ffi: ^2.3.0
+  flutter_lints: ^6.0.0
+
+dependency_overrides:
+  sqlite3: 2.4.7
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: LXGW WenKai GB Screen
+      fonts:
+        - asset: assets/Font/LXGWWenKaiGBScreen.ttf
+    - family: LXGW ZhenKai GB
+      fonts:
+        - asset: assets/Font/LXGWZhenKaiGB-Regular.ttf
+    - family: LXGW ZhenKai Slab GB
+      fonts:
+        - asset: assets/Font/LXGWZhenKaiSlabGB-Regular.ttf
+    - family: ZhenKai GBK
+      fonts:
+        - asset: assets/Font/ZhenKai_GBK-Regular.ttf
+    - family: Yozai
+      fonts:
+        - asset: assets/Font/Yozai-Light.ttf
+        - asset: assets/Font/Yozai-Medium.ttf
+        - asset: assets/Font/Yozai-Regular.ttf
+    - family: Xiaolai
+      fonts:
+        - asset: assets/Font/Xiaolai-Regular.ttf
+    - family: Xiaolai Mono
+      fonts:
+        - asset: assets/Font/XiaolaiMono-Regular.ttf
+  assets:
+    - assets/start/roleSettingPrompt/
+    - assets/start/scenePrompt/
+    - assets/start/systemPrompt/
+    - assets/start/world/
+    - assets/start/avatar/
+    - assets/backgroundImage/
+
