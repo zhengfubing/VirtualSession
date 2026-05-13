@@ -19,17 +19,6 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
   bool _hasChanges = false;
   VideoPlayerController? _videoController;
 
-  /// 默认背景图片资源列表（放在 assets/backgroundImage/ 目录下）
-  static const _defaultBgAssets = [
-    'assets/backgroundImage/bg1.png',
-    'assets/backgroundImage/bg2.png',
-    'assets/backgroundImage/bg4.png',
-    'assets/backgroundImage/bg5.png',
-  ];
-
-  /// 默认背景视频资源列表
-  static const _defaultBgVideoAssets = ['assets/backgroundImage/bg3.mp4'];
-
   @override
   void initState() {
     super.initState();
@@ -217,10 +206,7 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
         setState(() {
           switch (title) {
             case '主题色':
-              _editing = _editing.copyWith(
-                headerBgColor: c,
-                bottomBgColor: c,
-              );
+              _editing = _editing.copyWith(headerBgColor: c, bottomBgColor: c);
               break;
             case '页面背景色':
               _editing = _editing.copyWith(pageBgColor: c);
@@ -274,21 +260,6 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
           const SizedBox(height: 20),
           _buildSectionTitle('背景设置'),
           _buildBackgroundSection(),
-          const SizedBox(height: 24),
-          // 版权说明
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '默认主题选自 https://haowallpaper.com/，免费下载内容，如有侵权联系开发者删除',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey.shade500,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          const SizedBox(height: 12),
         ],
       ),
     );
@@ -424,143 +395,6 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
               ),
             ],
           ),
-          // 默认背景图片
-          if (_defaultBgAssets.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text(
-              '默认图片背景',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.text,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 1.5,
-              ),
-              itemCount: _defaultBgAssets.length,
-              itemBuilder: (context, index) {
-                final assetPath = _defaultBgAssets[index];
-                final isSelected = _editing.bgImagePath == assetPath;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _editing = _editing.copyWith(
-                        bgImagePath: assetPath,
-                        clearBgVideo: true,
-                      );
-                      _hasChanges = true;
-                    });
-                    _updateVideoController(null);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.accent
-                            : Colors.grey.shade300,
-                        width: isSelected ? 2.5 : 1,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Image.asset(
-                      assetPath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
-                        color: Colors.grey.shade100,
-                        child: Icon(
-                          Icons.image_outlined,
-                          color: Colors.grey.shade400,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-          // 默认背景视频
-          if (_defaultBgVideoAssets.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text(
-              '默认视频背景',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.text,
-              ),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 1.5,
-              ),
-              itemCount: _defaultBgVideoAssets.length,
-              itemBuilder: (context, index) {
-                final assetPath = _defaultBgVideoAssets[index];
-                final isSelected = _editing.bgVideoPath == assetPath;
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _editing = _editing.copyWith(
-                        bgVideoPath: assetPath,
-                        clearBgImage: true,
-                      );
-                      _hasChanges = true;
-                    });
-                    _updateVideoController(assetPath);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.accent
-                            : Colors.grey.shade300,
-                        width: isSelected ? 2.5 : 1,
-                      ),
-                      color: Colors.grey.shade900,
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.play_circle_outline,
-                          color: isSelected ? AppColors.accent : Colors.white70,
-                          size: 32,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '视频 ${index + 1}',
-                          style: TextStyle(
-                            color: isSelected
-                                ? AppColors.accent
-                                : Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
         ],
       ),
     );
