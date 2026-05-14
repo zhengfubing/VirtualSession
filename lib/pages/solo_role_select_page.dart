@@ -17,7 +17,10 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
   final _sessionService = SoloSessionService.instance;
 
   List<String> _allRoles = [];
+  String? _selectedAiRole;
+  String? _selectedUserRole;
   bool _isLoading = true;
+  bool _isCreating = false;
 
   @override
   void initState() {
@@ -30,6 +33,12 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
     if (mounted) {
       setState(() {
         _allRoles = roles;
+        if (roles.length >= 2) {
+          _selectedUserRole = roles[0];
+          _selectedAiRole = roles[1];
+        } else if (roles.length == 1) {
+          _selectedAiRole = roles.first;
+        }
         _isLoading = false;
       });
     }
@@ -39,12 +48,31 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
     return await _fileStorage.getRoleAvatarPath(roleName);
   }
 
-  Future<void> _onRoleTap(String aiRoleName) async {
-    // 检查是否已有 session
-    final session = await _sessionService.getSession(aiRoleName);
-    if (session != null) {
+  /// Roles available for AI selection (exclude user-selected role)
+  List<String> get _aiAvailableRoles =>
+      _allRoles.where((r) => r != _selectedUserRole).toList();
+
+  /// Roles available for User selection (exclude ai-selected role)
+  List<String> get _userAvailableRoles =>
+      _allRoles.where((r) => r != _selectedAiRole).toList();
+
+  Future<void> _onConfirm() async {
+    if (_selectedAiRole == null || _selectedUserRole == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请选择AI角色和用户角色')),
+      );
+      return;
+    }
+
+    setState(() => _isCreating = true);
+
+    try {
+      final session = await _sessionService.getOrCreateSession(
+        aiRoleName: _selectedAiRole!,
+        userRoleName: _selectedUserRole!,
+      );
       if (!mounted) return;
-      Navigator.of(context).push(
+      Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => SoloChatPage(
             aiRoleName: session['ai_role_name'] as String,
@@ -53,82 +81,14 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
           ),
         ),
       );
-    } else {
-      _showQuickSetup(aiRoleName);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('创建失败: $e')),
+        );
+        setState(() => _isCreating = false);
+      }
     }
-  }
-
-  void _showQuickSetup(String aiRoleName) {
-    String selectedUserRole = _allRoles.isNotEmpty ? _allRoles.first : '';
-
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: Text(
-            '开始与 $aiRoleName 的对话',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AppColors.text,
-            ),
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '我扮演的角色',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  initialValue: selectedUserRole,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                  items: _allRoles.map((r) {
-                    return DropdownMenuItem(value: r, child: Text(r));
-                  }).toList(),
-                  onChanged: (v) {
-                    setDialogState(() => selectedUserRole = v ?? '');
-                  },
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('取消'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (selectedUserRole.isEmpty) return;
-                Navigator.pop(ctx);
-                final session = await _sessionService.getOrCreateSession(
-                  aiRoleName: aiRoleName,
-                  userRoleName: selectedUserRole,
-                );
-                if (!mounted) return;
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => SoloChatPage(
-                      aiRoleName: session['ai_role_name'] as String,
-                      userRoleName: session['user_role_name'] as String,
-                      scenePromptId: session['scene_prompt_id'] as String?,
-                    ),
-                  ),
-                );
-              },
-              child: const Text('确认'),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -141,7 +101,7 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
         surfaceTintColor: Colors.transparent,
         iconTheme: IconThemeData(color: AppColors.accent),
         title: Text(
-          '独幕',
+          '创建 Solo',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -150,6 +110,27 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          if (_isCreating)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.accent,
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.check_rounded, size: 24),
+              color: AppColors.accent,
+              onPressed: _onConfirm,
+              tooltip: '确定',
+            ),
+        ],
       ),
       body: _isLoading
           ? Center(
@@ -170,28 +151,70 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
                       ),
                       const SizedBox(height: 12),
                       const Text(
-                        '还没有角色，请先创建角色',
+                        '还没有角色，请先在设置中创建角色',
                         style: TextStyle(fontSize: 14, color: AppColors.subText),
                       ),
                     ],
                   ),
                 )
-              : ListView.builder(
+              : ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  itemCount: _allRoles.length,
-                  itemBuilder: (context, index) {
-                    final role = _allRoles[index];
-                    return _buildRoleTile(role);
-                  },
+                  children: [
+                    _buildSectionHeader('AI 扮演', Icons.smart_toy_outlined),
+                    ..._aiAvailableRoles.map((role) => _buildRoleTile(
+                          role,
+                          isSelected: role == _selectedAiRole,
+                          onTap: () => setState(() => _selectedAiRole = role),
+                        )),
+                    const SizedBox(height: 16),
+                    Divider(
+                      height: 1,
+                      indent: 16,
+                      endIndent: 16,
+                      color: AppColors.subText.withValues(alpha: 0.1),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildSectionHeader('我扮演', Icons.person_outline),
+                    ..._userAvailableRoles.map((role) => _buildRoleTile(
+                          role,
+                          isSelected: role == _selectedUserRole,
+                          onTap: () => setState(() => _selectedUserRole = role),
+                        )),
+                    const SizedBox(height: 16),
+                  ],
                 ),
     );
   }
 
-  Widget _buildRoleTile(String roleName) {
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: AppColors.accent),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.text,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoleTile(
+    String roleName, {
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
-      onTap: () => _onRoleTap(roleName),
+      onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
             FutureBuilder<String?>(
@@ -205,13 +228,17 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
                 }
                 return CircleAvatar(
                   radius: 24,
-                  backgroundColor: AppColors.accent.withValues(alpha: 0.1),
+                  backgroundColor: isSelected
+                      ? AppColors.accent.withValues(alpha: 0.15)
+                      : AppColors.accent.withValues(alpha: 0.08),
                   child: Text(
                     roleName.isNotEmpty ? roleName[0].toUpperCase() : '?',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.accent,
+                      color: isSelected
+                          ? AppColors.accent
+                          : AppColors.subText,
                     ),
                   ),
                 );
@@ -219,41 +246,23 @@ class _SoloRoleSelectPageState extends State<SoloRoleSelectPage> {
             ),
             const SizedBox(width: 14),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    roleName,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.text,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  FutureBuilder<Map<String, dynamic>?>(
-                    future: _sessionService.getSession(roleName),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Text(
-                          '已有会话',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.accent.withValues(alpha: 0.7),
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ],
+              child: Text(
+                roleName,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? AppColors.accent : AppColors.text,
+                ),
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 20,
-              color: AppColors.subText.withValues(alpha: 0.3),
-            ),
+            if (isSelected)
+              Icon(Icons.check_circle_rounded, size: 22, color: AppColors.accent)
+            else
+              Icon(
+                Icons.radio_button_unchecked,
+                size: 22,
+                color: AppColors.subText.withValues(alpha: 0.3),
+              ),
           ],
         ),
       ),

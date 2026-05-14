@@ -62,7 +62,6 @@ class _CreateChatPageState extends State<CreateChatPage> {
           _selectedUserRole = roles[0];
           _selectedAiRole = roles[1];
         } else if (_isSolo && roles.length == 1) {
-          _selectedUserRole = roles[0];
           _selectedAiRole = roles[0];
         }
         _isLoading = false;
@@ -353,18 +352,20 @@ class _CreateChatPageState extends State<CreateChatPage> {
   }
 
   Widget _buildSoloRoleSection() {
+    final userAvailable = _allRoles.where((r) => r != _selectedAiRole).toList();
+    final aiAvailable = _allRoles.where((r) => r != _selectedUserRole).toList();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 用户扮演的角色
           Row(
             children: [
-              Icon(Icons.person_outline, size: 18, color: AppColors.subText),
+              Icon(Icons.smart_toy_outlined, size: 18, color: AppColors.subText),
               const SizedBox(width: 12),
               Text(
-                '我扮演',
+                'AI 扮演',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -377,11 +378,11 @@ class _CreateChatPageState extends State<CreateChatPage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _allRoles.map((role) {
-              final selected = _selectedUserRole == role;
+            children: aiAvailable.map((role) {
+              final selected = _selectedAiRole == role;
               return GestureDetector(
                 onTap: () {
-                  setState(() => _selectedUserRole = role);
+                  setState(() => _selectedAiRole = role);
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
@@ -423,13 +424,12 @@ class _CreateChatPageState extends State<CreateChatPage> {
             }).toList(),
           ),
           const SizedBox(height: 20),
-          // AI扮演的角色
           Row(
             children: [
-              Icon(Icons.smart_toy_outlined, size: 18, color: AppColors.subText),
+              Icon(Icons.person_outline, size: 18, color: AppColors.subText),
               const SizedBox(width: 12),
               Text(
-                'AI扮演',
+                '我扮演',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -442,11 +442,11 @@ class _CreateChatPageState extends State<CreateChatPage> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _allRoles.map((role) {
-              final selected = _selectedAiRole == role;
+            children: userAvailable.map((role) {
+              final selected = _selectedUserRole == role;
               return GestureDetector(
                 onTap: () {
-                  setState(() => _selectedAiRole = role);
+                  setState(() => _selectedUserRole = role);
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'pages/home_page.dart';
+import 'pages/splash_page.dart';
 import 'services/app_config_service.dart';
 import 'services/theme_service.dart';
 
@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     final fontFamily = savedFont.isNotEmpty ? savedFont : null;
 
     return MaterialApp(
-      title: 'AI Chat',
+      title: 'ZFB',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: lightScheme,
@@ -95,11 +95,13 @@ class _MyAppState extends State<MyApp> {
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: lightScheme.primary, width: 1.5),
           ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
         ),
       ),
-      home: const HomePage(),
+      home: const SplashPage(),
     );
   }
 }

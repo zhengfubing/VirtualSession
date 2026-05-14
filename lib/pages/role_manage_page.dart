@@ -11,16 +11,19 @@ import 'markdown_editor_page.dart';
 import 'prompt_manage_page.dart';
 
 class RoleManagePage extends StatefulWidget {
-  const RoleManagePage({super.key});
+  const RoleManagePage({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
-  State<RoleManagePage> createState() => _RoleManagePageState();
+  State<RoleManagePage> createState() => RoleManagePageState();
 }
 
-class _RoleManagePageState extends State<RoleManagePage> {
+class RoleManagePageState extends State<RoleManagePage> {
   final _promptDao = PromptDao.instance;
   final _fileStorage = FileStorageService();
   final _imagePicker = ImagePicker();
+  final _createNameCtrl = TextEditingController();
   List<Prompt> _items = [];
   Map<String, String?> _avatarPaths = {};
   bool _isLoading = true;
@@ -53,151 +56,6 @@ class _RoleManagePageState extends State<RoleManagePage> {
     }
   }
 
-  void _showCreateBottomSheet() {
-    final nameController = TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      useRootNavigator: true,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(ctx).viewInsets.bottom,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
-                child: TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    hintText: _config.createHint,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: AppColors.subText.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: AppColors.subText.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: AppColors.accent,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    isDense: true,
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.only(right: 4),
-                      child: SizedBox(
-                        width: 60,
-                        height: 36,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (nameController.text.isNotEmpty) {
-                              Navigator.pop(ctx);
-                              _createWithName(nameController.text.trim());
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.zero,
-                            elevation: 0,
-                          ),
-                          child: const Text('创建', style: TextStyle(fontSize: 13)),
-                        ),
-                      ),
-                    ),
-                    suffixIconConstraints: const BoxConstraints(
-                      minWidth: 0,
-                      minHeight: 0,
-                    ),
-                  ),
-                  autofocus: true,
-                  onSubmitted: (v) {
-                    if (v.isNotEmpty) {
-                      Navigator.pop(ctx);
-                      _createWithName(v.trim());
-                    }
-                  },
-                ),
-              ),
-              Divider(
-                height: 1,
-                indent: 56,
-                color: AppColors.subText.withValues(alpha: 0.08),
-              ),
-              _buildImportOption(
-                icon: Icons.folder_open_outlined,
-                iconColor: AppColors.accent,
-                label: '导入手机文件',
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _importFile();
-                },
-              ),
-              SizedBox(height: MediaQuery.of(ctx).padding.bottom),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImportOption({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, size: 20, color: iconColor),
-            ),
-            const SizedBox(width: 14),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.text,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Future<void> _createWithName(String name) async {
     final exists = await _promptDao.roleExists(name);
     if (exists) {
@@ -220,7 +78,7 @@ class _RoleManagePageState extends State<RoleManagePage> {
     }
   }
 
-  Future<void> _importFile() async {
+  Future<void> importFile() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -263,9 +121,9 @@ class _RoleManagePageState extends State<RoleManagePage> {
       _loadItems();
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('导入成功: $nameWithoutExt')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('导入成功: $nameWithoutExt')));
       }
     } catch (e) {
       if (mounted) {
@@ -398,7 +256,9 @@ class _RoleManagePageState extends State<RoleManagePage> {
       child: CircleAvatar(
         radius: 22,
         backgroundColor: accent.withValues(alpha: 0.1),
-        backgroundImage: avatarPath != null ? FileImage(File(avatarPath)) : null,
+        backgroundImage: avatarPath != null
+            ? FileImage(File(avatarPath))
+            : null,
         child: avatarPath == null
             ? Text(
                 item.fileName.isNotEmpty ? item.fileName[0].toUpperCase() : '?',
@@ -455,57 +315,129 @@ class _RoleManagePageState extends State<RoleManagePage> {
       );
     }
 
-    if (_items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              _config.emptyIcon,
-              size: 56,
-              color: AppColors.subText.withValues(alpha: 0.4),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              _config.emptyText,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.subText,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              _config.emptySubText,
-              style: const TextStyle(fontSize: 13, color: AppColors.subText),
-            ),
-          ],
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: _buildCreateInput(),
         ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: _items.length,
-      itemBuilder: (context, index) {
-        final isLast = index == _items.length - 1;
-        return Column(
-          children: [
-            _buildItemCard(_items[index]),
-            if (!isLast)
-              Divider(
-                height: 1,
-                indent: 60,
-                color: AppColors.subText.withValues(alpha: 0.1),
-              ),
-          ],
-        );
-      },
+        const Divider(height: 1),
+        Expanded(
+          child: _items.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _config.emptyIcon,
+                        size: 56,
+                        color: AppColors.subText.withValues(alpha: 0.4),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _config.emptyText,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.subText,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _config.emptySubText,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.subText,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: _items.length,
+                  itemBuilder: (context, index) {
+                    final isLast = index == _items.length - 1;
+                    return Column(
+                      children: [
+                        _buildItemCard(_items[index]),
+                        if (!isLast)
+                          Divider(
+                            height: 1,
+                            indent: 60,
+                            color: AppColors.subText.withValues(alpha: 0.1),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildCreateInput() {
+    return TextField(
+      controller: _createNameCtrl,
+      decoration: InputDecoration(
+        hintText: _config.createHint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: AppColors.subText.withValues(alpha: 0.2),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: AppColors.subText.withValues(alpha: 0.2),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: AppColors.accent),
+        ),
+        contentPadding: const EdgeInsets.only(left: 14, top: 10, bottom: 10),
+        isDense: true,
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 4),
+          child: SizedBox(
+            width: 56,
+            height: 34,
+            child: ElevatedButton(
+              onPressed: _doCreate,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.zero,
+                elevation: 0,
+              ),
+              child: const Text('创建', style: TextStyle(fontSize: 13)),
+            ),
+          ),
+        ),
+        suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+      ),
+      style: TextStyle(fontSize: 14, color: AppColors.text),
+      onSubmitted: (v) => _doCreate(),
+    );
+  }
+
+  void _doCreate() {
+    final name = _createNameCtrl.text.trim();
+    if (name.isEmpty) return;
+    _createWithName(name);
+    _createNameCtrl.clear();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.embedded) {
+      return _buildBody();
+    }
     return ThemedScaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appBarBg,
@@ -527,7 +459,7 @@ class _RoleManagePageState extends State<RoleManagePage> {
           IconButton(
             icon: const Icon(Icons.add_rounded, size: 26),
             color: AppColors.accent,
-            onPressed: _showCreateBottomSheet,
+            onPressed: importFile,
             tooltip: '创建',
           ),
         ],

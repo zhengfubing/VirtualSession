@@ -3,18 +3,17 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import '../theme/app_colors.dart';
 import '../database/database_helper.dart';
 
-import 'agent_config_page.dart';
 import 'chat_settings_page.dart';
 import 'memory_compression_page.dart';
 import 'model_config_page.dart';
+import 'voice_settings_page.dart';
+import 'voice_manage_page.dart';
+import 'theme_config_page.dart';
+import 'font_config_page.dart';
+import 'about_page.dart';
 import 'role_manage_page.dart';
 import 'scene_manage_page.dart';
 import 'world_manage_page.dart';
-import 'voice_settings_page.dart';
-import 'theme_config_page.dart';
-import 'font_config_page.dart';
-import 'icon_config_page.dart';
-import 'about_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -99,45 +98,7 @@ class _MainPageState extends State<MainPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          _buildSectionTitle('管理'),
-          _buildTile(
-            Icons.person_outline,
-            '角色',
-            '创建和管理角色设定',
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RoleManagePage()),
-            ),
-          ),
-          _buildTile(
-            Icons.landscape_outlined,
-            '场景',
-            '创建和管理场景描述',
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const SceneManagePage()),
-            ),
-          ),
-          _buildTile(
-            Icons.public_outlined,
-            '世界',
-            '创建和管理世界设定',
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const WorldManagePage()),
-            ),
-          ),
-          const SizedBox(height: 20),
           _buildSectionTitle('系统'),
-          _buildTile(
-            Icons.smart_toy_outlined,
-            '智能体配置',
-            '对话、压缩、记忆提取模型选择',
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AgentConfigPage()),
-            ),
-          ),
           _buildTile(
             Icons.chat_outlined,
             '聊天设置',
@@ -166,6 +127,35 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
           const SizedBox(height: 20),
+          _buildSectionTitle('内容管理'),
+          _buildTile(
+            Icons.person_outline,
+            '角色',
+            '创建、编辑、导入角色设定',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RoleManagePage()),
+            ),
+          ),
+          _buildTile(
+            Icons.landscape_outlined,
+            '场景',
+            '创建、编辑、导入场景设定',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SceneManagePage()),
+            ),
+          ),
+          _buildTile(
+            Icons.public_outlined,
+            '世界',
+            '创建、编辑、导入世界设定',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const WorldManagePage()),
+            ),
+          ),
+          const SizedBox(height: 20),
           _buildSectionTitle('自定义'),
           _buildTile(
             Icons.font_download_outlined,
@@ -179,30 +169,30 @@ class _MainPageState extends State<MainPage> {
           _buildTile(
             Icons.palette_outlined,
             '主题',
-            '自定义头部、底部、背景颜色和图片',
+            '自定义头部、底部、背景颜色、图标和图片',
             () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ThemeConfigPage()),
-            ),
-          ),
-          _buildTile(
-            Icons.color_lens_outlined,
-            '图标',
-            '设置全局图标颜色',
-            () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const IconConfigPage()),
             ),
           ),
           const SizedBox(height: 20),
           _buildSectionTitle('语音'),
           _buildTile(
             Icons.record_voice_over_outlined,
-            '音色',
+            '角色音色',
             '为角色配置语音',
             () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const VoiceSettingsPage()),
+            ),
+          ),
+          _buildTile(
+            Icons.manage_accounts_outlined,
+            '音色管理',
+            '增加、删除、查看音色',
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const VoiceManagePage()),
             ),
           ),
           const SizedBox(height: 20),

@@ -47,12 +47,31 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
   final _ttsVoiceCtrl = TextEditingController();
   final _ttsLanguageCtrl = TextEditingController();
 
+  // Agent model config
+  List<String> _modelNames = [];
+  String _modelChat = '';
+  String _modelCompression = '';
+  String _modelMemory = '';
+
   @override
   void initState() {
     super.initState();
     _masterKeyCtrl.addListener(_onMasterKeyChanged);
     _loadModelEntries();
     _loadTtsConfig();
+    _loadAgentConfig();
+  }
+
+  Future<void> _loadAgentConfig() async {
+    _modelChat = _config.agentModelChat;
+    _modelCompression = _config.agentModelCompression;
+    _modelMemory = _config.soloMemoryModel;
+    final models = await _db.getAllModels();
+    if (mounted) {
+      setState(() {
+        _modelNames = models.map((m) => AIModel.fromMap(m).name).toList();
+      });
+    }
   }
 
   void _onMasterKeyChanged() {
@@ -173,6 +192,11 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
       _db.setTtsConfig('tts_language', _ttsLanguageCtrl.text.trim()),
     ]);
 
+    // Save agent config
+    await _config.set('agent_model_chat', _modelChat);
+    await _config.set('agent_model_compression', _modelCompression);
+    await _config.set('solo_memory_model', _modelMemory);
+
     if (mounted) {
       ScaffoldMessenger.of(
         context,
@@ -211,6 +235,32 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
+          _sectionTitle('Agent 模型配置', Icons.smart_toy_outlined),
+          const SizedBox(height: 12),
+          _modelDropdown(
+            '对话模型',
+            _modelChat,
+            (v) => setState(() => _modelChat = v!),
+          ),
+          const SizedBox(height: 14),
+          _modelDropdown(
+            '压缩模型',
+            _modelCompression,
+            (v) => setState(() => _modelCompression = v!),
+          ),
+          const SizedBox(height: 14),
+          _modelDropdown(
+            '记忆提取模型',
+            _modelMemory,
+            (v) => setState(() => _modelMemory = v ?? ''),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '用于将多轮摘要提炼为结构化记忆，推荐使用便宜模型',
+            style: TextStyle(fontSize: 11, color: AppColors.subText),
+          ),
+          const SizedBox(height: 28),
+
           _sectionTitle('傻瓜式无脑配置', Icons.vpn_key_outlined),
           const SizedBox(height: 12),
           TextField(
@@ -362,6 +412,25 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _modelDropdown(
+    String label,
+    String value,
+    ValueChanged<String?> onChanged,
+  ) {
+    return DropdownButtonFormField<String>(
+      initialValue: value.isEmpty ? null : value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      ),
+      items: _modelNames
+          .map((name) => DropdownMenuItem(value: name, child: Text(name)))
+          .toList(),
+      onChanged: onChanged,
     );
   }
 }

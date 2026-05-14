@@ -218,6 +218,68 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
     );
   }
 
+  Widget _buildIconColorTile() {
+    final color = _editing.headerIconColor;
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+      ),
+      title: const Text('图标颜色', style: TextStyle(fontSize: 14)),
+      subtitle: Text(
+        '#${color.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}',
+        style: const TextStyle(fontSize: 12, color: AppColors.subText),
+      ),
+      trailing: const Icon(Icons.chevron_right, size: 18),
+      onTap: _pickIconColor,
+    );
+  }
+
+  void _pickIconColor() {
+    Color pickerColor = _editing.headerIconColor;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('选择图标颜色'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: pickerColor,
+            onColorChanged: (c) => pickerColor = c,
+            enableAlpha: true,
+            displayThumbColor: true,
+            pickerAreaHeightPercent: 0.8,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              final c = _normalizeColor(pickerColor);
+              setState(() {
+                _editing = _editing.copyWith(
+                  headerIconColor: c,
+                  bottomIconColor: c,
+                );
+                _hasChanges = true;
+              });
+              Navigator.pop(context);
+            },
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ThemedScaffold(
@@ -257,6 +319,9 @@ class _ThemeConfigPageState extends State<ThemeConfigPage> {
           _buildSectionTitle('颜色配置'),
           _buildColorTile('主题色', _editing.headerBgColor, (_) {}),
           _buildColorTile('页面背景色', _editing.pageBgColor, (_) {}),
+          const SizedBox(height: 20),
+          _buildSectionTitle('图标颜色'),
+          _buildIconColorTile(),
           const SizedBox(height: 20),
           _buildSectionTitle('背景设置'),
           _buildBackgroundSection(),

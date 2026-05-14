@@ -24,7 +24,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 11,
+      version: 12,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -271,6 +271,7 @@ class DatabaseHelper {
         description TEXT,
         language TEXT NOT NULL DEFAULT 'zh',
         scene TEXT,
+        is_custom INTEGER NOT NULL DEFAULT 0,
         updated_at REAL NOT NULL
       )
     ''');
@@ -583,6 +584,11 @@ class DatabaseHelper {
       // 2. summaries 表增加 memory_id 和 context_item_id 字段
       await db.execute("ALTER TABLE summaries ADD COLUMN memory_id TEXT");
       await db.execute("ALTER TABLE summaries ADD COLUMN context_item_id TEXT");
+    }
+    if (oldVersion < 12) {
+      await db.execute(
+        "ALTER TABLE aliyun_default_voices ADD COLUMN is_custom INTEGER NOT NULL DEFAULT 0",
+      );
     }
   }
 
@@ -1773,6 +1779,31 @@ class DatabaseHelper {
       whereArgs: [id],
     );
     return results.isNotEmpty ? results.first : null;
+  }
+
+  // 添加自定义音色
+  Future<void> addCustomVoice(Map<String, dynamic> voice) async {
+    final db = await instance.database;
+    final now = DateTime.now().millisecondsSinceEpoch / 1000;
+    await db.insert('aliyun_default_voices', {
+      'id': voice['id'],
+      'name': voice['name'],
+      'description': voice['description'] ?? '',
+      'language': voice['language'] ?? 'zh',
+      'scene': voice['scene'] ?? '',
+      'is_custom': 1,
+      'updated_at': now,
+    });
+  }
+
+  // 删除自定义音色
+  Future<void> deleteCustomVoice(String id) async {
+    final db = await instance.database;
+    await db.delete(
+      'aliyun_default_voices',
+      where: 'id = ? AND is_custom = ?',
+      whereArgs: [id, 1],
+    );
   }
 
   // ==================== 主题表操作 ====================
